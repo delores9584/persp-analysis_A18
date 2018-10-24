@@ -1,0 +1,170 @@
+---
+title: "Homework#2"
+author: "Delores Tang"
+date: "10/14/2018"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(lattice)
+library(MASS)
+library(dplyr)
+```
+
+
+1. Imputing age and gender
+```{r, include = F}
+#Import datasets
+BestInc <- read.csv("C:/Users/delor/persp-analysis_A18/Assignments/A2/BestIncome.txt", header=FALSE)
+SurvInc <- read.csv("C:/Users/delor/persp-analysis_A18/Assignments/A2/SurvIncome.txt", header=FALSE)
+IncIntel <- read.csv("C:/Users/delor/persp-analysis_A18/Assignments/A2/IncomeIntel.txt", header=FALSE)
+
+# Rename variables
+names(BestInc) <- c("L_inc","C_inc","Height","Weight")
+names(SurvInc) <- c("T_inc","Weight", "Age", "Gender")
+names(IncIntel) <- c("year","gre","salary")
+```
+
+(a) In order to impute age and gender from SurvIncome to BestIncome, I would like to fit a generalized linear model to variables in SurvIncome.
+```{r, tidy = TRUE}
+#Linear Regression in SurvIncome
+Agelm <- lm(Age ~ Weight + T_inc, data = SurvInc)
+summary(Agelm)
+Genderlm <- lm(Gender ~ Weight + T_inc, data = SurvInc)
+summary(Genderlm)
+```
+
+
+Therefore, the equations that could be used to impute Age and Gender to BestIncome will be: $$\text{Age} = 44.21 - 6.722\times 10^{-3} \times \text{Weight} + 2.52 \times 10^{-5} \times\text{Total Income}$$ and $$\text{Gender} = 3.761 - 1.953\times 10^{-2} \times \text{Weight} -5.25 \times 10^{-6} \times\text{Total Income.}$$  
+
+
+(b) Using the equations obtained from question (a), I imputed Age and Gender to BestIncome based on the SurveyIncome dataset. Since gender has to be binay, I set all imputed gende that is greater than 0.5 as 1, and others as 0. Also, I assumed that the sum of labor and capital income in BestIncome data is equivalent to the variable Total Income in SurveyIncome data.
+
+```{r, tidy = TRUE}
+BestInc$Age <- 4.421e+01 -6.722e-03 * BestInc$Weight + 2.520e-05 * (BestInc$L_inc + BestInc$C_inc)
+BestInc$Gender <- 3.761e+00 -1.953e-02 * BestInc$Weight -5.250e-06 * (BestInc$L_inc + BestInc$C_inc)
+
+# Since Gender has to be binary
+for (i in 1:length(BestInc$Gender)){
+  if (BestInc$Gender[i] < 0.5){
+       BestInc$Gender[i] <- 0
+  }else{
+       BestInc$Gender[i] <- 1
+  }
+}
+```
+  
+(c) For age,  
+mean: 44.89,    sd = 0.219,     min = 43.98,    max = 45.70,    no. of observation = 10000;  
+For Gender,  
+mean: 0.4614    sd = 0.499,     min = 0,        max = 1,        no. of observation = 10000.
+```{r, tidy = TRUE}
+summary(BestInc$Age)
+summary(BestInc$Gender)
+sd(BestInc$Age)
+sd(BestInc$Gender)
+length(BestInc$Age)
+length(BestInc$Gender)
+```
+  
+(d) Correlation matrix:
+```{r, tidy = TRUE}
+res <- cor(BestInc)
+round(res, 2)
+```
+  
+  
+2.(a) Coefficients for intercept: 89541.293,    Std.Error: 878.764  
+      Coefficients for GRE score: -25.763,      Std.Error: 1.36
+```{r, tidy = TRUE}
+salmod1 <- lm(salary ~ gre, data = IncIntel)
+summary(salmod1)
+```
+  
+(b) Due to the change in GRE's scoring system, a system drift on the data occurred at the year 2010-2011. Therefore, as indicated by the scatterplot, people's GRE scores dropped significantly due to this change. 
+
+```{r, tidy = TRUE}
+#Scatter plot of Gre scores vs. Graduation year
+xyplot(gre ~ year, xlab = "Graduation year", ylab = "Gre Quantitative Scores", data = IncIntel)
+```
+
+To accurately test our hypothesis, we would have to rescale GRE scores to eliminate the effect of the data drift by using the percentile a person gets in the year he takes GRE test, instead of the general GRE quantitative score, to indicate his or her academic performance on a GRE test. 
+```{r, tidy = TRUE}
+#Define a function that extract a list for each year's gre scores
+grefunc <- function(yr) {
+  grelist <- list()
+  for (i in (1:nrow(IncIntel))) {
+    if (IncIntel$year[i] == yr) {
+      grelist <- append(grelist, IncIntel$gre[i])
+    }
+  }
+  return(grelist)
+}
+
+#Make a dictionary that sort each year's participants' gre scores
+gredic <- list()
+for (yr in (2001:2013)){
+  grelist <- grefunc(yr)
+  gredic <- append(gredic, list(grelist))
+  
+}
+```
+
+
+```{r, tidy=TRUE}
+#Create a new variable gre_perc that indicates the participant's percentile GRE in that year
+for (yr in (2001:2013)) {
+
+  for (i in (1:nrow(IncIntel))) {
+    if (IncIntel$year[i] == yr) {
+      dicyr <- IncIntel$year[i] - 2000 
+      gredic_yr <- unlist(gredic[dicyr]) 
+      gredic_yr_rank <- ecdf(gredic_yr) 
+      IncIntel$gre_perc[i] <- gredic_yr_rank(IncIntel$gre[i])
+    }
+  }  
+}
+
+xyplot(IncIntel$gre_perc ~ IncIntel$year, xlab = "Graduation year", 
+       ylab = "Percentile GRE Quantitative Scores")
+```
+
+
+(c) 
+```{r, tidy = TRUE}
+#Scatterplot of the original salary vs. year
+xyplot(salary ~ year,  xlab = "Graduation year", ylab = "Salary after 4 years of graduation", data = IncIntel)
+```
+  
+  As indicated by the scatter plot, salary inflates gradually over the years. In that case, years is a stationarity that could confound our hypothesis testing. Therefore, we could calculate the average annual growth rate of income, and balance out this annual rate of salary growth by dividing a person's salary by the growth rate to the power of time (in years).
+    
+```{r, tidy = TRUE}
+#Control for stationarity
+##Average income per year
+avg_inc <- aggregate(select(IncIntel,salary), list(IncIntel$year), mean)
+avg_inc
+
+##Average growth rate
+avg_growth <- mean((avg_inc$salary[13:2] - avg_inc$salary[12:1]) / avg_inc$salary[12:1])
+IncIntel$ctrSalary <- IncIntel$salary/((1 + avg_growth)**(IncIntel$year - 2001))
+xyplot(IncIntel$ctrSalary ~ IncIntel$year)
+```
+
+(d) Estimated coefficients:  
+Intercept: 61643.2,     Std.Error: 455.9;  
+GRE percentiles: -411,  Std.Error: 782.0.  
+  
+Now the coefficient for GRE percentile, unlike that in (a), turned to be insignificant (p > 0.05). 
+  
+Due to the change we made in (b), the estimated values of both coefficients varied signifiantly as we adjusted GRE variable to a new GRE percentile variable that ranges from 0 to 1. 
+  
+Similarly, after controlling for system drift in GRE scores and the stationarity of time, the results of linear regression model suggests that GRE quantitative score is not a significant predicting factor of one's salary after 4 years of graduation. It suggests that the alternative hypothesis is likely to be rejected. 
+
+```{r, tidy = TRUE}
+adjustLm <- lm(ctrSalary ~ gre_perc, data = IncIntel)
+summary(adjustLm)
+```
