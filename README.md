@@ -69,6 +69,7 @@ Late problem sets will be penalized 1 points for every hour they are late. For e
 | Oct. 15 | M | Observational data           | F2015, RW2000 |    |
 |         |   |                              | KW2009, A2017 |    |
 |         |   |                              | EKLS2015     |    |
+<<<<<<< HEAD
 | Oct. 17 | W | Simulated data               | [Slides](https://github.com/UC-MACSS/persp-analysis_A18/blob/master/Slides/PerspAnalysis_SimData.pdf)       | [A3](https://github.com/UC-MACSS/persp-analysis_A18/tree/master/Assignments/A3/Assign3.pdf) |
 | Oct. 22 | M | Simulated data               | M2002        |    |
 | Oct. 24 | W | Asking questions             | S2018, Ch. 3, [Slides](https://github.com/UC-MACSS/persp-analysis_A18/blob/master/Slides/PerspAnalysis_Surv.pdf) | [A4](https://github.com/UC-MACSS/persp-analysis_A18/tree/master/Assignments/A4/Assign4.pdf) |
@@ -88,6 +89,23 @@ Late problem sets will be penalized 1 points for every hour they are late. For e
 | Nov. 28 | W | CSS: Political Science       |              | A9 |
 | Dec.  3 | M | CSS: Psychology              |              |    |
 | Dec.  5 | W | CSS: Economics               |              |    |
+=======
+| Oct. 17 | W | Simulated data               | Slides       | [A3](https://github.com/UC-MACSS/persp-analysis_A18/tree/master/Assignments/A3/Assign3.pdf) |
+| Oct. 22 | M | Simulated data               | M2002        |    |
+| Oct. 24 | W | Asking questions             | S2018, Ch. 3 | A4 |
+| Oct. 29 | M | Asking questions             |              |    |
+| Oct. 31 | W | Experiments                  | S2018, Ch. 4 | A5 |
+| Nov.  5 | M | Experiments                  |              |    |
+| Nov.  7 | W | Collaboration                | S2018, Ch. 5 | A6 |
+| Nov. 12 | M | Collaboration                |              |    |
+| Nov. 14 | W | Ethics                       | S2018, Ch. 6 | A7 |
+| Nov. 19 | M | Ethics                       |              |    |
+| Nov. 21 | W | CSS: Sociology               |              | A8 |
+| Nov. 26 | M | CSS: Political Science       |              |    |
+| Nov. 28 | W | CSS: Psychology              |              | A9 |
+| Dec.  3 | M | CSS: Economics               |              |    |
+| Dec.  5 | W | TBD                          |              |    |
+>>>>>>> Submitting Assignment3
 
 
 ## References
